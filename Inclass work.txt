@@ -65,3 +65,8 @@ DELETE FROM Staffing;
 
 --Execute the stored procedure
 EXECUTE StaffingUpdated;
+
+--TEST FOR EFFICIENCY of tables after creating and executing stored procedures
+SELECT * FROM Staffing
+GO
+SELECT * FROM Staffing_Extra
