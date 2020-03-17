@@ -1,0 +1,67 @@
+--Inclass work 03/15/2020
+
+/*create Staffing table */
+CREATE TABLE Staffing 
+(
+	EmpID int Primary key not null, 
+	FullName nvarchar (50) not null, 
+	HouseName nvarchar (50) not null, 
+	PhoneNumbers nvarchar (25) not null
+	);
+	GO
+
+-- Insert values into Staffing
+INSERT INTO Staffing values
+	(0021, 'Michael Watts', 'Noors', '202-301-4544'),
+	(0022, 'John Doh', 'Harmony', '301-533-9303'),
+	(0023, 'Genevieve Johnson', 'Muggies', '240-334-4964'); 
+
+-- create a duplicate to Staffing
+SELECT * INTO Staffing_Extra 
+	FROM Staffing;
+
+--Insert an additional row in Staffing_Extra which is a duplicate
+INSERT INTO Staffing_Extra 
+	VALUES (0024, 'Grace White', 'Martha', '301-602-1123');
+
+--TEST FOR EFFICIENCY FOR Staffing and Staffing_Extra
+SELECT * FROM Staffing
+GO
+SELECT * FROM Staffing_Extra
+
+/*WRITE A MERGE STATEMENT TO TRANSFER THE NEW ROW TO THE ORIGINAL TABLE, STAFFING*/
+MERGE Staffing S
+	USING Staffing_Extra SE
+	ON (S.EmpID = SE.EmpID)
+WHEN MATCHED 
+	THEN UPDATE SET
+		S.FullName = SE.FullName,
+		S.HouseName = SE.HouseName,
+		S.PhoneNumbers = SE.PhoneNumbers
+WHEN NOT MATCHED BY TARGET
+	THEN INSERT (EmpID, FullName, HouseName, PhoneNumbers)
+		VALUES (SE.EmpID, SE.FullName, SE.HouseName, SE.PhoneNumbers)
+WHEN NOT MATCHED BY SOURCE 
+	THEN DELETE;
+
+--Create a stored procedure for the merge statement which updates Staffing table
+CREATE PROCEDURE StaffingUpdated AS 
+MERGE Staffing S
+	USING Staffing_Extra SE
+	ON (S.EmpID = SE.EmpID)
+WHEN MATCHED 
+	THEN UPDATE SET
+		S.FullName = SE.FullName,
+		S.HouseName = SE.HouseName,
+		S.PhoneNumbers = SE.PhoneNumbers
+WHEN NOT MATCHED BY TARGET
+	THEN INSERT (EmpID, FullName, HouseName, PhoneNumbers)
+		VALUES (SE.EmpID, SE.FullName, SE.HouseName, SE.PhoneNumbers)
+WHEN NOT MATCHED BY SOURCE 
+	THEN DELETE;
+
+--DELETE ALL ROWS FROM STAFFING TABLE
+DELETE FROM Staffing;
+
+--Execute the stored procedure
+EXECUTE StaffingUpdated;
